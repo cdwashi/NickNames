@@ -12,9 +12,7 @@ os.environ["OPENAI_API_KEY"] = config.OPENAI_API_KEY
 
 llm = ChatOpenAI(temperature=0.9)
 
-#user_product = input("What is the product you want to describe? ")
-#system_Prompt = "You are a witty creative writer with the task of helping clients come up with humourous nicknames for the jobs they have or their hobby. 
-
+#Here I'm using a generic prompt template instead of assigning it explicitly to the system prompt
 prompt1 = ChatPromptTemplate.from_template(
     "What is a funny nickname to describe \
     a person who does or makes {product}?"
@@ -22,25 +20,27 @@ prompt1 = ChatPromptTemplate.from_template(
 
 chain1 = LLMChain(llm=llm, prompt=prompt1)
 
-prompt2 = ChatPromptTemplate.from_template(
-    "Write in 25 words or less a witty story for how the following \
-    person got his nickname:{nick_name}"
-)
-
-prompt3 = ChatPromptTemplate.from_template(
-    "Write in 25 words or less a witty story for how the following \
+#Here I've created a clear and specific system prompt template for the LLM's system message instead of just being specific in a general template
+template = """You are a witty creative writer with the task of helping \
+    clients come up with humourous nicknames for the jobs they have or their hobby. \
+    Your job is to write in 25 words or less a witty story for how the following \
     person got his nickname. Pay strict attention to the gender \
-    of the person in the story and check that you use the correct pronoun in the story:{nick_name}"
-)
+    of the person in the story and check that you use the correct pronoun in the story."""
+human_template = "{product}"
 
-chain2 = LLMChain(llm=llm, prompt=prompt3)
+chat_prompt = ChatPromptTemplate.from_messages([
+    ("system", template),
+    ("human", human_template),
+])
+
+chain2 = LLMChain(llm=llm, prompt=chat_prompt)
 
 overall_simp_chain = SimpleSequentialChain(chains=[chain1, chain2], verbose=True)
 
 #overall_simp_chain.run(user_product)
 
-def nickname_generator(user_product):
-    output = overall_simp_chain.run(user_product)
+def nickname_generator(product):
+    output = overall_simp_chain.run(product)
     
     return output
 
