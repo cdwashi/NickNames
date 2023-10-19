@@ -12,7 +12,6 @@ os.environ["OPENAI_API_KEY"] = config.OPENAI_API_KEY
 
 llm = ChatOpenAI(temperature=0.9)
 
-#Here I'm using a generic prompt template instead of assigning it explicitly to the system prompt
 prompt1 = ChatPromptTemplate.from_template(
     "What is a funny nickname to describe \
     a person who does or makes {product}?"
@@ -20,12 +19,34 @@ prompt1 = ChatPromptTemplate.from_template(
 
 chain1 = LLMChain(llm=llm, prompt=prompt1)
 
-#Here I've created a clear and specific system prompt template for the LLM's system message instead of just being specific in a general template
+#Here I'm simply putting few shot examples in the prompt template instead of calling the few shot prompt template as below
+#https://python.langchain.com/docs/modules/model_io/prompts/prompt_templates/few_shot_examples_chat
+
 template = """You are a witty creative writer with the task of helping \
-    clients come up with humourous nicknames for the jobs they have or their hobby. \
-    Your job is to write in 25 words or less a witty story for how the following \
-    person got his nickname. Pay strict attention to the gender \
-    of the person in the story and check that you use the correct pronoun in the story."""
+clients come up with humourous nicknames for the jobs they have or their hobby. \
+Your job is to write in 25 words or less a witty story for how the following \
+male or female input person got their nickname. Pay strict attention to the gender \
+of the person in the story and double check that you use the correct pronoun in your story.
+
+<client>: A man who sells apples would be called..
+
+<writer>: Once he sold a whole apple try to a preacher \
+and ever since then he's been called "Johnny Preacher Tree"
+
+<client>: A woman who makes underwear would be called..
+
+<writer>: At fifteen years old "Holey Holly" got her nickname, \
+because there were always holes in the socks she made!
+
+<client>: A little boy who is scared of pigs
+
+<writer>: He earned the nickname "Pig Panicker" from his classmates, \
+because he was so afraid of pigs.
+
+<client>: A young girl who packs pistols at the gun factory
+
+<writer>: She was so skilled at packing those pistols for shipment \
+she earned the nickname "Pistol Packing Annie" """
 human_template = "{product}"
 
 chat_prompt = ChatPromptTemplate.from_messages([
